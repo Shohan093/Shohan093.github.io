@@ -28,5 +28,10 @@ pnpm-debug.log*
 # vs code files
 .vscode/
 
-# jetbrains setting folder
-.idea/
+# Virtual environment
+.venv/
+
+# Python
+__pycache__/
+python-script/
+
