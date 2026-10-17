@@ -1,0 +1,89 @@
+
+---
+import { getCollection, render } from 'astro:content';
+import { getReadingTime } from '../../utils/readingTime';
+import { slugifyTag } from '../../utils/tags';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const readingTime = getReadingTime(post.body);
+const { Content } = await render(post);
+
+const formattedDate = post.data.pubDate.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+>
+  <main class="mx-auto max-w-3xl px-6 py-16 sm:py-24">
+    <article>
+      <header class="mb-12">
+        <a
+          href="/blog/"
+          class="mb-8 inline-block text-sm text-[var(--accent)] hover:underline"
+        >
+          ← Back to blog
+        </a>
+
+        <p class="mb-4 text-sm text-[var(--text-muted)]">
+          <time datetime={post.data.pubDate.toISOString()}>
+            {formattedDate}
+          </time>
+          <span aria-hidden="true"> · </span>
+          <span>{readingTime} min read</span>
+          {post.data.updatedDate && (
+            <span>
+              {' '}· Updated{' '}
+              {post.data.updatedDate.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </span>
+          )}
+        </p>
+
+        <h1 class="mb-5 text-4xl font-bold tracking-tight sm:text-5xl">
+          {post.data.title}
+        </h1>
+
+        <p class="text-lg leading-8 text-[var(--text-muted)]">
+          {post.data.description}
+        </p>
+
+        {post.data.tags.length > 0 && (
+          <ul class="mt-6 flex flex-wrap gap-2">
+            {post.data.tags.map((tag) => (
+              <li class="rounded border border-[var(--border)] px-2 py-1 text-xs text-[var(--text-muted)]">
+                <a
+                    href={`/blog/tags/${slugifyTag(tag)}/`}
+                    class="hover:text-[var(--accent)]"
+                >
+                    {tag}
+                </a>
+            </li>
+            ))}
+          </ul>
+        )}
+      </header>
+
+      <div class="blog-content">
+        <Content />
+      </div>
+    </article>
+  </main>
+</BaseLayout>

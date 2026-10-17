@@ -1,0 +1,173 @@
+
+---
+const navigation = [
+  { label: "Home", href: "/" },
+  { label: "Research", href: "/research/" },
+  { label: "Projects", href: "/projects/" },
+  { label: "Blogs", href: "/blog/" },
+  { label: "About", href: "/about/" },
+  { label: "Contact", href: "/contact/" },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="site-brand" href="/" aria-label="Shohan — Home">
+      <span class="brand-name">Shohan<span class="brand-period">.</span></span>
+    </a>
+
+    <nav aria-label="Main navigation">
+      <ul class="nav-list">
+        {navigation.map((item) => {
+          const isCurrent =
+            item.href === "/"
+              ? currentPath === "/"
+              : currentPath === item.href ||
+                currentPath.startsWith(item.href);
+
+          return (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isCurrent ? "page" : undefined}
+                class:list={["nav-link", { "nav-link-active": isCurrent }]}
+              >
+                {item.label}
+              </a>
+            </li>
+          );
+        })}
+
+        <!-- <li>
+          <a
+            class="nav-link cv-link"
+            href="/resume-anisujjaman.pdf"
+            download="Shohan_Resume.pdf"
+          >
+            Download CV <span aria-hidden="true">↓</span>
+          </a>
+        </li> -->
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: relative;
+    z-index: 10;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+  }
+
+  .header-inner {
+    display: flex;
+    min-height: 76px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .site-brand {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .brand-name {
+    font-size: 1.35rem;
+    font-weight: 750;
+    letter-spacing: -0.055em;
+  }
+
+  .brand-period {
+    color: var(--color-accent);
+  }
+
+  .nav-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 6px;
+    padding: 0.5rem 0.6rem;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+  }
+
+  .nav-link:hover,
+  .nav-link-active {
+    background: var(--color-surface-raised);
+    color: var(--color-accent);
+  }
+
+  .cv-link {
+    margin-left: 0.35rem;
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+  }
+
+  .cv-link:hover {
+    border-color: var(--color-accent);
+  }
+
+  .site-brand:focus-visible,
+  .nav-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+
+  @media (max-width: 900px) {
+    .header-inner {
+      align-items: flex-start;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.8rem;
+      padding-block: 1rem;
+    }
+
+    .nav-list {
+      justify-content: flex-start;
+      gap: 0.2rem;
+    }
+
+    .cv-link {
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .nav-list {
+      gap: 0.15rem;
+    }
+
+    .nav-link {
+      padding: 0.4rem 0.45rem;
+      font-size: 0.82rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-link {
+      transition: none;
+    }
+  }
+</style>

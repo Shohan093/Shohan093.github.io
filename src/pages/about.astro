@@ -1,0 +1,415 @@
+
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const graduateCourses = [
+  "Artificial Intelligence & Machine Learning",
+  "Neural Networks",
+  "Deep Learning",
+  "Data Mining",
+  "Natural Language Processing",
+  "Big Data",
+  "Distributed Computing Systems",
+];
+
+const undergraduateCourses = [
+  "Probability & Probability Distribution",
+  "Mathematical Statistics",
+  "Linear Algebra",
+  "Calculus 1 & 2",
+  "Discrete Mathematics",
+  "Algorithm Design & Analysis",
+  "Numerical Analysis",
+  "Numerical Methods for IVP & BVP",
+  "Mathematical Programming",
+  "Mathematical Modeling for Biology",
+];
+---
+
+<BaseLayout
+  title="About | Data Science"
+  description="Academic background and selected coursework in mathematics, data science, and computing."
+>
+  <main class="container section about-page">
+    <header class="page-intro reading-width">
+      <p class="eyebrow">ABOUT ME</p>
+
+      <h1 class="page-title">
+        From mathematics to
+        <span>data science.</span>
+      </h1>
+
+      <p class="lead">
+        My academic journey began with mathematics, where I developed
+        a foundation in analytical thinking, statistical reasoning,
+        and mathematical modeling. I am now pursuing graduate studies
+        in Data Science at BUET, expanding that foundation through
+        machine learning, artificial intelligence, and data-intensive
+        computing.
+      </p>
+    </header>
+
+    <section class="about-section" aria-labelledby="education-heading">
+      <div class="section-heading-group">
+        <p class="eyebrow">EDUCATION</p>
+        <h2 id="education-heading">Academic background</h2>
+      </div>
+
+      <div class="education-list">
+        <article class="education-item">
+          <div class="education-marker" aria-hidden="true">01</div>
+
+          <div class="education-content">
+            <p class="education-level">Graduate studies · Current</p>
+            <h3>MSc in Data Science</h3>
+            <p class="institution">
+              Department of Computer Science and Engineering <br/>
+              Bangladesh University of Engineering and Technology (BUET)
+            </p>
+            <p class="education-description">
+              Graduate coursework in artificial intelligence, machine
+              learning, deep learning, natural language processing,
+              data mining, big data, and distributed computing.
+            </p>
+            <p class="supervisor">
+            Graduate supervisor:{" "}
+            <a
+                href="https://cse.buet.ac.bd/faculty/faculty_detail/sukarnabarua"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Sukarna Barua
+            </a>
+            </p>
+          </div>
+        </article>
+
+        <article class="education-item">
+          <div class="education-marker" aria-hidden="true">02</div>
+
+          <div class="education-content">
+            <p class="education-level">Undergraduate studies · Completed</p>
+            <h3>BSc in Mathematics</h3>
+            <p class="institution">
+              Department of Mathematics <br/>
+              Shahjalal University of Science and Technology (SUST)
+            </p>
+            <p class="education-description">
+              Mathematical training spanning probability and statistics,
+              linear algebra, calculus, discrete mathematics, algorithms,
+              numerical methods, and mathematical modeling.
+            </p>
+            <p class="supervisor">
+            Undergraduate supervisor:{" "}
+            <a
+                href="https://sust.edu/departments/mat/faculty/akabir-mat@sust.edu"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Dr. Md Alamgir Kabir
+            </a>
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="about-section" aria-labelledby="coursework-heading">
+      <div class="section-heading-group">
+        <p class="eyebrow">SELECTED COURSEWORK</p>
+        <h2 id="coursework-heading">
+          The foundations behind my field.
+        </h2>
+        <p class="section-description">
+          Selected courses that connect my mathematical background
+          with my graduate education in data science.
+        </p>
+      </div>
+
+      <div class="coursework-group">
+        <h3 class="coursework-heading">Data science and computing</h3>
+        <ul class="course-list">
+          {graduateCourses.map((course) => (
+            <li class="course-tag">{course}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="coursework-group">
+        <h3 class="coursework-heading">Mathematical foundations</h3>
+        <ul class="course-list">
+          {undergraduateCourses.map((course) => (
+            <li class="course-tag course-tag-secondary">{course}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section class="closing-section">
+      <p class="eyebrow">WHAT'S NEXT</p>
+      <h2>Interested in my work?</h2>
+      <p>
+        Explore my research interests, browse selected projects,
+        or get in touch to discuss potential collaborations.
+      </p>
+
+      <div class="page-actions">
+        <a class="button button-primary" href="/research/">
+          Explore research <span aria-hidden="true">→</span>
+        </a>
+        <a class="button button-secondary" href="/contact/">
+          Get in touch
+        </a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .about-page {
+    padding-bottom: 5rem;
+  }
+
+  .page-intro {
+    padding-bottom: 3.5rem;
+  }
+
+  .page-title {
+    max-width: 800px;
+    margin: 0;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.055em;
+  }
+
+  .page-title span {
+    display: block;
+    color: var(--color-accent);
+  }
+
+  .lead {
+    max-width: 680px;
+    margin-top: 1.75rem;
+    color: var(--color-text-muted);
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    line-height: 1.85;
+  }
+
+  .about-section {
+    padding-block: 3rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .section-heading-group {
+    max-width: 720px;
+    margin-bottom: 2rem;
+  }
+
+  .section-heading-group h2,
+  .closing-section h2 {
+    margin: 0.4rem 0 0;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 650;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+  }
+
+  .section-description {
+    margin-top: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.75;
+  }
+
+  .education-list {
+    display: grid;
+    gap: 0;
+  }
+
+  .education-item {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 1.25rem;
+    padding-block: 1.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .education-marker {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    font-weight: 650;
+  }
+
+  .education-level {
+    margin: 0 0 0.5rem;
+    color: var(--color-accent);
+    font-size: 0.8rem;
+    font-weight: 650;
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+  }
+
+  .education-content h3 {
+    margin: 0;
+    font-size: clamp(1.25rem, 3vw, 1.6rem);
+    line-height: 1.35;
+  }
+
+  .institution {
+    margin-top: 0.45rem;
+    font-weight: 550;
+    line-height: 1.6;
+  }
+
+  .education-description {
+    max-width: 680px;
+    margin-top: 0.85rem;
+    color: var(--color-text-muted);
+    line-height: 1.75;
+  }
+
+  .coursework-group + .coursework-group {
+    margin-top: 2rem;
+  }
+
+  .coursework-heading {
+    margin: 0 0 1rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .course-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .course-tag {
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    padding: 0.55rem 0.8rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .course-tag-secondary {
+    background: transparent;
+    color: var(--color-text-muted);
+  }
+
+  .closing-section {
+    padding: 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-surface);
+  }
+
+  .closing-section > p:not(.eyebrow) {
+    max-width: 600px;
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.75;
+  }
+
+  .page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+
+  .button {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+
+  .button-primary {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  .button-primary:hover {
+    border-color: var(--color-accent-hover);
+    background: var(--color-accent-hover);
+    color: var(--color-bg);
+  }
+
+  .button-secondary {
+    background: transparent;
+    color: var(--color-text);
+  }
+
+  .button-secondary:hover {
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+  }
+
+  .supervisor {
+  margin-top: 0.85rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  }
+
+  .supervisor a {
+  color: var(--color-accent);
+  text-decoration: none;
+  text-underline-offset: 3px;
+  }
+
+  .supervisor a:hover {
+  text-decoration: underline;
+  }
+
+
+  @media (max-width: 600px) {
+    .page-intro {
+      padding-bottom: 2.5rem;
+    }
+
+    .education-item {
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 0.85rem;
+    }
+
+    .education-marker {
+      width: 34px;
+      height: 34px;
+      font-size: 0.75rem;
+    }
+
+    .closing-section {
+      padding: 1.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button {
+      transition: none;
+    }
+  }
+</style>

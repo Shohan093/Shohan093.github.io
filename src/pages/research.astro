@@ -1,0 +1,580 @@
+
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const yourName = "Md Anisujjaman";
+
+const researchInterests = [
+  "Mathematical Optimization",
+  "Machine Learning Systems",
+  "Federated Learning",
+  "LLM Reasoning",
+  "Generative AI",
+  "Reinforcement Learning",
+];
+
+const journalAuthors = [
+  "S. M. Sayedur Rahman",
+  "Ritu Mondal",
+  "Sarmin Santa",
+  "Md Anisujjaman",
+  "Kanis Fatema Ferdushi",
+  "Md Rejwanul Haque",
+];
+
+const conferenceContributions = [
+  {
+    title:
+      "Interpretable Machine Learning for Predicting Child Stunting in Bangladesh: Division-Wise Insights from the BDHS 2022",
+    authors: [
+      "Md Samio Haque",
+      "Syed Ashir Abrar",
+      "Md Anisujjaman",
+      "Sadia Sharmin",
+      "Md Jamal Uddin",
+    ],
+    venue:
+      "International Conference on Applied Statistics and Data Science (ICASDS)",
+    year: "2025",
+    status: "Accepted for Contributory Talk",
+  },
+  {
+    title:
+      "Behind the Meter: A Machine Learning Framework for Taxi Fare Fairness with a Hybrid Metric to Identify Route-Level Pricing Bias",
+    authors: [
+      "Md Samio Haque",
+      "Rakibul Hasan",
+      "Md Anisujjaman",
+    ],
+    venue:
+      "International Conference on Applied Statistics and Data Science (ICASDS)",
+    year: "2025",
+    status: "Accepted for Poster",
+  },
+  {
+    title:
+      "Hybrid Modeling of Marine Ecosystem: Integrating Dynamical Systems and Deep Learning for Robust Biomass Forecasting",
+    authors: [
+      "Bornaly Ghosh",
+      "Md Anisujjaman",
+    ],
+    venue:
+      "International Conference on Applied Statistics and Data Science (ICASDS)",
+    year: "2025",
+    status: "Accepted for Poster",
+  },
+];
+---
+
+<BaseLayout
+  title="Research | Data Science"
+  description="Research interests, journal publication, conference contributions, and undergraduate research experience."
+>
+  <main class="container section research-page">
+    <header class="page-intro reading-width">
+      <p class="eyebrow">RESEARCH</p>
+
+      <h1 class="page-title">
+        Exploring ideas through
+        <span>mathematics and data.</span>
+      </h1>
+
+      <p class="lead">
+        My research interests span mathematical optimization, machine
+        learning systems, and intelligent methods for solving complex
+        problems. My academic work has also involved statistical
+        modeling, machine learning applications, and numerical
+        simulation.
+      </p>
+    </header>
+
+    <!-- Research interests -->
+    <section
+      class="research-section"
+      aria-labelledby="interests-heading"
+    >
+      <div class="section-heading-group">
+        <p class="eyebrow">01 / AREAS OF INTEREST</p>
+        <h2 id="interests-heading">Research interests</h2>
+      </div>
+
+      <ul class="interest-list">
+        {researchInterests.map((interest) => (
+          <li class="interest-tag">{interest}</li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- Journal publication -->
+    <section
+      class="research-section"
+      aria-labelledby="journal-heading"
+    >
+      <div class="section-heading-group">
+        <p class="eyebrow">02 / JOURNAL PUBLICATION</p>
+        <h2 id="journal-heading">Journal article</h2>
+      </div>
+
+      <article class="publication-card">
+        <div class="publication-meta">
+          <span class="publication-type">Journal article</span>
+          <span class="publication-year">2025</span>
+        </div>
+
+        <h3 class="publication-title">
+          Mathematical Analysis of a SEIRD Model for the Spread of
+          Tuberculosis in Bangladesh
+        </h3>
+
+        <p class="publication-authors">
+          {journalAuthors.map((author, index) => (
+            <>
+              {index > 0 && ", "}
+              {author === yourName ? (
+                <strong class="current-author">{author}</strong>
+              ) : (
+                author
+              )}
+            </>
+          ))}
+        </p>
+
+        <p class="publication-venue">
+          International Journal of Advanced and Applied Science,
+          Volume 12, Issue 12, pp. 229–236
+        </p>
+
+        <a
+          class="publication-link"
+          href="https://doi.org/10.21833/ijaas.2025.12.020"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View published article <span aria-hidden="true">↗</span>
+        </a>
+      </article>
+    </section>
+
+    <!-- Conference contributions -->
+    <section
+      class="research-section"
+      aria-labelledby="conference-heading"
+    >
+      <div class="section-heading-group">
+        <p class="eyebrow">03 / CONFERENCE CONTRIBUTIONS</p>
+        <h2 id="conference-heading">Conference research</h2>
+        <p class="section-description">
+          Research contributions accepted for presentation at the
+          International Conference on Applied Statistics and Data
+          Science (ICASDS), 2025.
+        </p>
+      </div>
+
+      <div class="conference-list">
+        {conferenceContributions.map((contribution, index) => (
+          <article class="conference-card">
+            <div class="conference-index" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </div>
+
+            <div class="conference-content">
+              <div class="publication-meta">
+                <span class="publication-type">
+                  {contribution.status}
+                </span>
+                <span class="publication-year">
+                  {contribution.year}
+                </span>
+              </div>
+
+              <h3 class="publication-title">
+                {contribution.title}
+              </h3>
+
+              <p class="publication-authors">
+                {contribution.authors.map((author, authorIndex) => (
+                  <>
+                    {authorIndex > 0 && ", "}
+                    {author === yourName ? (
+                      <strong class="current-author">{author}</strong>
+                    ) : (
+                      author
+                    )}
+                  </>
+                ))}
+              </p>
+
+              <p class="publication-venue">
+                {contribution.venue}
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- Undergraduate research -->
+    <section
+      class="research-section"
+      aria-labelledby="undergraduate-heading"
+    >
+      <div class="section-heading-group">
+        <p class="eyebrow">04 / UNDERGRADUATE RESEARCH</p>
+        <h2 id="undergraduate-heading">
+          Mathematical modeling and simulation
+        </h2>
+      </div>
+
+      <article class="undergraduate-card">
+        <p class="project-label">
+          Projects in Mathematics and Related Fields
+        </p>
+
+        <h3 class="publication-title">
+          Numerical Simulation of Plankton Dynamics in a Noise-Induced System
+        </h3>
+
+        <p class="undergraduate-intro">
+          An undergraduate research project exploring ecological
+          population dynamics through stochastic modeling and numerical
+          simulation.
+        </p>
+
+        <!-- <ul class="contribution-list">
+          <li>
+            Simulated population trajectories using a stochastic model
+            and applied statistical techniques to estimate population
+            growth in a noise-induced ecological system.
+          </li>
+          <li>
+            Introduced a model-conversion parameter and incorporated
+            noise into system parameters to study trajectories under
+            varying conditions.
+          </li>
+          <li>
+            Conducted Monte Carlo simulations to investigate adequate
+            carrying capacity.
+          </li>
+        </ul> -->
+      </article>
+    </section>
+
+    <!-- Contact -->
+    <section class="closing-section">
+      <p class="eyebrow">GET IN TOUCH</p>
+      <h2>Interested in research collaboration?</h2>
+      <p>
+        I'm open to connecting with researchers and discussing
+        opportunities to explore ideas across mathematics and data science.
+      </p>
+
+      <div class="page-actions">
+        <a class="button button-primary" href="/contact/">
+          Contact me <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .research-page {
+    padding-bottom: 5rem;
+  }
+
+  .page-intro {
+    padding-bottom: 3.5rem;
+  }
+
+  .page-title {
+    max-width: 850px;
+    margin: 0;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.055em;
+  }
+
+  .page-title span {
+    display: block;
+    color: var(--color-accent);
+  }
+
+  .lead {
+    max-width: 680px;
+    margin-top: 1.75rem;
+    color: var(--color-text-muted);
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    line-height: 1.85;
+  }
+
+  .research-section {
+    padding-block: 3rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .section-heading-group {
+    max-width: 760px;
+    margin-bottom: 2rem;
+  }
+
+  .section-heading-group h2,
+  .closing-section h2 {
+    margin: 0.4rem 0 0;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 650;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+  }
+
+  .section-description {
+    margin-top: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.75;
+  }
+
+  .interest-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .interest-tag {
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    padding: 0.65rem 0.9rem;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.92rem;
+  }
+
+  .publication-card,
+  .undergraduate-card {
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: clamp(1.25rem, 4vw, 2rem);
+    background: var(--color-surface);
+  }
+
+  .publication-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .publication-type {
+    color: var(--color-accent);
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: 0.045em;
+    line-height: 1.6;
+    text-transform: uppercase;
+  }
+
+  .publication-year {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .publication-title {
+    margin: 0;
+    font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+    font-weight: 650;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+  }
+
+  .publication-authors {
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    font-size: 0.94rem;
+    line-height: 1.8;
+  }
+
+  .current-author {
+    color: var(--color-accent);
+    font-weight: 750;
+  }
+
+  .publication-venue {
+    margin-top: 0.65rem;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.75;
+  }
+
+  .publication-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.35rem;
+    color: var(--color-accent);
+    font-size: 0.93rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+
+  .publication-link:hover {
+    text-decoration: underline;
+  }
+
+  .conference-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .conference-card {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: clamp(1.1rem, 3vw, 1.6rem);
+    background: var(--color-surface);
+  }
+
+  .conference-index {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    color: var(--color-accent);
+    font-size: 0.8rem;
+    font-weight: 650;
+  }
+
+  .conference-content {
+    min-width: 0;
+  }
+
+  .conference-content .publication-meta {
+    margin-bottom: 0.8rem;
+  }
+
+  .conference-content .publication-type {
+    font-size: 0.73rem;
+  }
+
+  .conference-content .publication-authors {
+    margin-top: 0.75rem;
+  }
+
+  .conference-content .publication-venue {
+    margin-top: 0.5rem;
+  }
+
+  .project-label {
+    margin-bottom: 0.85rem;
+    color: var(--color-accent);
+    font-size: 0.8rem;
+    font-weight: 650;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+  }
+
+  .undergraduate-intro {
+    max-width: 700px;
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .contribution-list {
+    display: grid;
+    gap: 0.85rem;
+    margin: 1.5rem 0 0;
+    padding-left: 1.25rem;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .contribution-list li {
+    padding-left: 0.25rem;
+  }
+
+  .contribution-list li::marker {
+    color: var(--color-accent);
+  }
+
+  .closing-section {
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-surface);
+  }
+
+  .closing-section > p:not(.eyebrow) {
+    max-width: 600px;
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+
+  .button {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+
+  .button-primary {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  .button-primary:hover {
+    border-color: var(--color-accent-hover);
+    background: var(--color-accent-hover);
+    color: var(--color-bg);
+  }
+
+  @media (max-width: 600px) {
+    .page-intro {
+      padding-bottom: 2.5rem;
+    }
+
+    .conference-card {
+      grid-template-columns: 30px minmax(0, 1fr);
+      gap: 0.85rem;
+    }
+
+    .conference-index {
+      width: 30px;
+      height: 30px;
+      font-size: 0.72rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button {
+      transition: none;
+    }
+  }
+</style>

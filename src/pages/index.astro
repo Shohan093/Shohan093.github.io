@@ -1,16 +1,133 @@
+
 ---
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout
+  title="Home | Data Science"
+  description="Academic profile and general interests in data science, mathematics, and machine learning."
+>
+  <section class="container section">
+    <div class="reading-width">
+      <p class="eyebrow">MATHEMATICS · STATISTICS · DATA SCIENCE</p>
+
+      <h1 class="hero-title">
+        Turning mathematical ideas into
+        <span>meaningful insights.</span>
+      </h1>
+
+      <p class="hero-description">
+        I'm a Data Science graduate student at BUET with a background in
+        Mathematics and a curiosity about how data, algorithms, and
+        statistical principles help us understand complex problems.
+        I'm interested in machine learning, natural language processing,
+        and distributed learning systems—and in the ideas that make them work.
+      </p>
+
+      <div class="hero-actions">
+        <a class="button button-primary" href="/research/">
+          Explore research <span aria-hidden="true">→</span>
+        </a>
+        <a
+          class="button button-primary"
+          href="/resume-anisujjaman.pdf"
+          download="Shohan_Resume.pdf"
+        >
+          <span>Download CV</span>
+          <svg
+            aria-hidden="true"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="m7 10 5 5 5-5" />
+            <path d="M12 15V3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero-title {
+    max-width: 900px;
+    margin: 0;
+    font-size: clamp(2.5rem, 6vw, 4.75rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.055em;
+  }
+
+  .hero-title span {
+    display: block;
+    margin-top: 0.25em;
+    color: var(--color-accent);
+  }
+
+  .hero-description {
+    max-width: 650px;
+    margin-block: 1.75rem;
+    color: var(--color-text-muted);
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    line-height: 1.8;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+
+  .button {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 7px;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+
+  .button-primary {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  .button-primary:hover {
+    border-color: var(--color-accent-hover);
+    background: var(--color-accent-hover);
+    color: var(--color-bg);
+  }
+
+  .button-secondary {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .button-secondary:hover {
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button {
+      transition: none;
+    }
+  }
+</style>

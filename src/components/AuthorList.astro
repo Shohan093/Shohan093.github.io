@@ -1,0 +1,39 @@
+
+---
+interface Props {
+  authors: string;
+}
+
+const { authors } = Astro.props;
+const yourName = "Md Anisujjaman";
+
+const authorNames = authors.split(/,\s*/);
+---
+
+<p class="publication-authors">
+  {authorNames.map((author, index) => (
+    <>
+      {index > 0 && ", "}
+      {author.trim() === yourName ? (
+        <strong class="current-author">{author}</strong>
+      ) : (
+        author
+      )}
+    </>
+  ))}
+</p>
+
+<style>
+  .publication-authors {
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    font-size: 0.94rem;
+    line-height: 1.8;
+  }
+
+  .current-author {
+    color: var(--color-accent);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+</style>

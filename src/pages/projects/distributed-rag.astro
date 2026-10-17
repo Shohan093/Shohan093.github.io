@@ -1,0 +1,1075 @@
+
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const repository = "https://github.com/Shohan093/Distributed-RAG";
+
+const results = [
+  {
+    transition: "V3 → V1",
+    naive: "0.000",
+    compensated: "0.772",
+    oracle: "0.791",
+    recovery: "97.6%",
+  },
+  {
+    transition: "V3 → V2",
+    naive: "0.001",
+    compensated: "0.810",
+    oracle: "0.866",
+    recovery: "93.5%",
+  },
+];
+
+const methods = [
+  {
+    name: "L0 · Translation",
+    description:
+      "Shifts each query by a global mean-difference vector. It was inexpensive, but retrieval quality remained close to zero.",
+    outcome: "Baseline",
+  },
+  {
+    name: "L1 · Orthogonal rotation",
+    description:
+      "Learns a global rotation from paired calibration embeddings using orthogonal Procrustes alignment.",
+    outcome: "Best overall",
+  },
+  {
+    name: "L2 · Rotation + local correction",
+    description:
+      "Adds cluster-specific residual corrections to L1. It did not improve retrieval quality in these experiments.",
+    outcome: "No improvement",
+  },
+];
+---
+
+<BaseLayout
+  title="Drift-RAG | Distributed Retrieval Systems"
+  description="A distributed retrieval system that uses query-side embedding alignment to recover retrieval quality across embedding-model transitions."
+>
+  <main class="container section project-detail">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/projects/">Projects</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">Drift-RAG</span>
+    </nav>
+
+    <header class="project-hero">
+      <p class="eyebrow">PROJECT 01 · DISTRIBUTED SYSTEMS</p>
+
+      <h1 class="project-title">
+        Drift-RAG:
+        <span>Retrieval across changing embedding spaces.</span>
+      </h1>
+
+      <p class="project-lead">
+        What happens when a production RAG system upgrades its embedding
+        model, but its historical document vectors cannot be regenerated
+        immediately? Drift-RAG investigates whether lightweight,
+        query-side alignment can recover retrieval quality while keeping
+        historical indexes intact.
+      </p>
+
+      <div class="hero-actions">
+        <a
+          class="button button-primary"
+          href={repository}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View source code <span aria-hidden="true">↗</span>
+        </a>
+        <a class="button button-secondary" href="#results">
+          Explore results <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+
+      <div class="metadata" aria-label="Project details">
+        <div>
+          <span class="meta-label">Project type</span>
+          <span>Research & engineering</span>
+        </div>
+        <div>
+          <span class="meta-label">Deployment</span>
+          <span>5 virtual machines</span>
+        </div>
+        <div>
+          <span class="meta-label">Core stack</span>
+          <span>Scala · Spark · Python · FAISS</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="section-block" aria-labelledby="problem-heading">
+      <div class="section-heading">
+        <p class="eyebrow">01 / MOTIVATION</p>
+        <h2 id="problem-heading">The problem: embedding drift</h2>
+      </div>
+
+      <div class="prose reading-width">
+        <p>
+          A retrieval system encodes documents and queries into vector
+          representations. When the embedding model changes, new query
+          vectors may no longer align with document vectors produced by
+          the older model. Searching the historical index with those
+          incompatible vectors can severely degrade retrieval quality.
+        </p>
+        <p>
+          The conventional alternative is to re-embed the historical
+          corpus using the new model. For a large, continuously growing
+          collection, that operation can be expensive and operationally
+          disruptive.
+        </p>
+      </div>
+
+      <div class="comparison-grid">
+        <article class="comparison-card">
+          <span class="comparison-number">01</span>
+          <h3>Full re-embedding</h3>
+          <p>
+            Regenerate document embeddings and rebuild historical indexes
+            whenever the model changes.
+          </p>
+          <span class="comparison-note">High migration cost</span>
+        </article>
+
+        <article class="comparison-card comparison-card-featured">
+          <span class="comparison-number">02</span>
+          <h3>Query-side compensation</h3>
+          <p>
+            Learn a transformation from a small calibration set and adapt
+            new query vectors before searching each historical index.
+          </p>
+          <span class="comparison-note">The approach we tested</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-block" aria-labelledby="architecture-heading">
+      <div class="section-heading">
+        <p class="eyebrow">02 / SYSTEM DESIGN</p>
+        <h2 id="architecture-heading">A router and three autonomous shards</h2>
+        <p class="section-intro">
+          The live system runs across five VMs. Each historical-generation
+          shard owns its adapter and FAISS index; the router encodes the
+          query and fuses the ranked results.
+        </p>
+      </div>
+
+      <figure class="architecture">
+        <div class="architecture-node router-node">
+          <span class="node-role">WORKER 1 · ROUTER</span>
+          <h3>Query service</h3>
+          <p>Encode with BGE-M3 · Dispatch · Fuse results</p>
+        </div>
+
+        <div class="flow-label">
+          <span class="flow-line" aria-hidden="true"></span>
+          <span>Raw V3 query embedding</span>
+          <span class="flow-line" aria-hidden="true"></span>
+        </div>
+
+        <div class="shard-grid">
+          <article class="architecture-node shard-node">
+            <span class="node-role">WORKER 2</span>
+            <h3>Shard · Epoch 1</h3>
+            <p class="model-label">BGE-large-en</p>
+            <div class="node-component">L1 adapter</div>
+            <div class="node-component">FAISS index</div>
+          </article>
+
+          <article class="architecture-node shard-node">
+            <span class="node-role">WORKER 3</span>
+            <h3>Shard · Epoch 2</h3>
+            <p class="model-label">BGE-large-en-v1.5</p>
+            <div class="node-component">L1 adapter</div>
+            <div class="node-component">FAISS index</div>
+          </article>
+
+          <article class="architecture-node shard-node">
+            <span class="node-role">WORKER 4</span>
+            <h3>Shard · Epoch 3</h3>
+            <p class="model-label">BGE-M3 · Native space</p>
+            <div class="node-component">No adapter needed</div>
+            <div class="node-component">FAISS index</div>
+          </article>
+        </div>
+
+        <div class="flow-label response-flow">
+          <span class="flow-line" aria-hidden="true"></span>
+          <span>Ranked results returned to router for fusion</span>
+          <span class="flow-line" aria-hidden="true"></span>
+        </div>
+
+        <div class="architecture-node orchestrator-node">
+          <span class="node-role">WORKER 5 · ORCHESTRATOR</span>
+          <h3>Training and evaluation</h3>
+          <p>
+            Calibration · Adapter training · Index experiments · Benchmarks
+          </p>
+        </div>
+
+        <figcaption>
+          Conceptual architecture of the deployed system. Query and result
+          traffic passes between the router and shards; the orchestrator
+          handles training and evaluation rather than serving live queries.
+        </figcaption>
+      </figure>
+
+      <div class="implementation-notes">
+        <div>
+          <h3>Offline pipeline</h3>
+          <p>
+            Spark ingestion and cleaning, chronological corpus partitioning,
+            embedding generation, calibration, adapter training, and FAISS
+            index construction.
+          </p>
+        </div>
+        <div>
+          <h3>Live retrieval</h3>
+          <p>
+            FastAPI services communicate over HTTP. Each shard applies its
+            own transformation locally, searches its index, and returns
+            ranked results for router-side fusion.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" aria-labelledby="methods-heading">
+      <div class="section-heading">
+        <p class="eyebrow">03 / COMPENSATION METHODS</p>
+        <h2 id="methods-heading">How do we align the embeddings?</h2>
+        <p class="section-intro">
+          Three adapter designs test whether a simple global transformation
+          is sufficient, or whether local corrections provide additional value.
+        </p>
+      </div>
+
+      <div class="method-list">
+        {methods.map((method) => (
+          <article class:list={["method-card", { "method-card-best": method.outcome === "Best overall" }]}>
+            <div class="method-heading">
+              <h3>{method.name}</h3>
+              <span class="method-badge">{method.outcome}</span>
+            </div>
+            <p>{method.description}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="equation-panel">
+        <p class="equation-label">ORTHOGONAL PROCRUSTES · L1</p>
+        <div class="equation" aria-label="Find the orthogonal matrix R that minimizes the Frobenius norm of X R minus Y">
+          R* = arg min<sub>R</sub> ‖XR − Y‖<sub>F</sub><sup>2</sup>
+          <span class="equation-constraint">subject to RᵀR = I</span>
+        </div>
+        <p>
+          Here, X and Y are paired calibration embeddings from the current
+          and historical models. The orthogonality constraint restricts the
+          learned transformation to a rotation or reflection, preserving
+          vector lengths and inner products within the transformed space.
+        </p>
+      </div>
+    </section>
+
+    <section class="section-block" id="results" aria-labelledby="results-heading">
+      <div class="section-heading">
+        <p class="eyebrow">04 / EXPERIMENTAL EVALUATION</p>
+        <h2 id="results-heading">Recovering retrieval quality</h2>
+        <p class="section-intro">
+          The main CC-News evaluation compares unadapted queries,
+          compensated queries, and native-model retrieval on the same
+          historical-generation task.
+        </p>
+      </div>
+
+      <div class="results-summary">
+        <article class="result-highlight">
+          <span class="result-value">97.6%</span>
+          <h3>V3 → V1</h3>
+          <p>Oracle NDCG@10 recovered</p>
+        </article>
+        <article class="result-highlight">
+          <span class="result-value">93.5%</span>
+          <h3>V3 → V2</h3>
+          <p>Oracle NDCG@10 recovered</p>
+        </article>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <caption>
+            CC-News self-retrieval evaluation · NDCG@10
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Transition</th>
+              <th scope="col">Naive</th>
+              <th scope="col">L1 compensated</th>
+              <th scope="col">Oracle</th>
+              <th scope="col">Recovery</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((result) => (
+              <tr>
+                <th scope="row">{result.transition}</th>
+                <td>{result.naive}</td>
+                <td class="best-cell">{result.compensated}</td>
+                <td>{result.oracle}</td>
+                <td class="best-cell">{result.recovery}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="table-note">
+        Recovery is calculated as compensated NDCG@10 divided by oracle
+        NDCG@10. Values are rounded; percentages use the underlying
+        experiment values.
+      </p>
+
+      <div class="secondary-evidence">
+        <h3>Does the pattern hold on another dataset?</h3>
+        <p>
+          On NFCorpus, a BEIR benchmark with human relevance judgments,
+          compensation also substantially improved retrieval: L1 reached
+          approximately 0.276 NDCG@10 against an oracle of 0.359 for V3 → V1,
+          and 0.280 against 0.400 for V3 → V2.
+        </p>
+        <p>
+          The recovery percentages from NFCorpus and CC-News should not be
+          directly compared. CC-News uses title-to-body self-retrieval,
+          while NFCorpus uses graded human relevance judgments.
+        </p>
+      </div>
+
+      <div class="negative-findings">
+        <p class="eyebrow">WHAT DID NOT WORK?</p>
+        <div class="finding-grid">
+          <div>
+            <h3>Translation alone failed</h3>
+            <p>
+              L0 remained near zero NDCG@10 on the CC-News historical
+              indexes. A global mean shift was insufficient for this
+              embedding-model transition.
+            </p>
+          </div>
+          <div>
+            <h3>More complexity did not help</h3>
+            <p>
+              L2 slightly underperformed L1. Cluster-specific residual
+              corrections did not improve on the global rotation in these
+              experiments.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" aria-labelledby="systems-heading">
+      <div class="section-heading">
+        <p class="eyebrow">05 / ENGINEERING</p>
+        <h2 id="systems-heading">Quality is only part of the system</h2>
+      </div>
+
+      <div class="engineering-grid">
+        <article class="engineering-card">
+          <span class="engineering-number">01</span>
+          <h3>Parallel shard requests</h3>
+          <p>
+            The initial router queried shards sequentially. Switching to
+            parallel requests reduced mean end-to-end latency from 331 ms
+            to a measured range of approximately 171–242 ms.
+          </p>
+        </article>
+
+        <article class="engineering-card">
+          <span class="engineering-number">02</span>
+          <h3>Exact versus approximate search</h3>
+          <p>
+            In the reported FAISS comparison, flat search averaged about
+            0.82 NDCG@10 and 1.3 ms query latency; IVF at nprobe=16 averaged
+            about 0.74 and 0.17 ms. Approximate search traded retrieval
+            quality for speed.
+          </p>
+        </article>
+
+        <article class="engineering-card">
+          <span class="engineering-number">03</span>
+          <h3>Calibration instead of migration</h3>
+          <p>
+            The reported cost baseline estimates 11–15 minutes for
+            calibration-only re-embedding, compared with 6.8–9.3 hours
+            for full-corpus re-embedding per transition. Full-corpus
+            timing is a throughput-based extrapolation.
+          </p>
+        </article>
+      </div>
+
+      <div class="stack-panel">
+        <p class="eyebrow">TECHNOLOGY STACK</p>
+        <div class="stack-tags">
+          <span>Scala</span>
+          <span>Apache Spark</span>
+          <span>Python</span>
+          <span>FastAPI</span>
+          <span>FAISS</span>
+          <span>PyTorch</span>
+          <span>Sentence Transformers</span>
+          <span>HTTP services</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" aria-labelledby="limitations-heading">
+      <div class="section-heading">
+        <p class="eyebrow">06 / SCOPE & LIMITATIONS</p>
+        <h2 id="limitations-heading">What these results do—and don't—show</h2>
+      </div>
+
+      <div class="prose reading-width">
+        <p>
+          Drift-RAG demonstrates that query-side orthogonal alignment can
+          recover much of the measured retrieval quality across the tested
+          BGE model transitions. The experiments also show that the
+          simplest effective adapter outperformed the more elaborate
+          variants considered here.
+        </p>
+        <p>
+          The CC-News evaluation is a constructed self-retrieval task, not
+          a general-purpose relevance benchmark. The project also reports
+          an unresolved discrepancy: the two transitions rank differently
+          under MMD distributional alignment and NDCG-based retrieval
+          recovery. These metrics capture related but distinct properties.
+        </p>
+        <p>
+          The implementation returns ranked documents; it does not
+          generate answers with an LLM. The reported results are evidence
+          for the tested setup, not a guarantee that the same recovery
+          will hold for unrelated embedding families, arbitrary corpora,
+          or every production workload.
+        </p>
+      </div>
+    </section>
+
+    <section class="closing-section">
+      <p class="eyebrow">EXPLORE THE IMPLEMENTATION</p>
+      <h2>Interested in the system details?</h2>
+      <p>
+        The repository contains the ingestion pipeline, adapter training,
+        distributed retrieval services, and evaluation scripts.
+      </p>
+      <div class="hero-actions">
+        <a
+          class="button button-primary"
+          href={repository}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Explore on GitHub <span aria-hidden="true">↗</span>
+        </a>
+        <a class="button button-secondary" href="/projects/">
+          Back to projects
+        </a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .project-detail {
+    padding-bottom: 5rem;
+  }
+
+  .breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 2.5rem;
+    color: var(--color-text-subtle);
+    font-size: 0.9rem;
+  }
+
+  .breadcrumbs a {
+    color: var(--color-text-muted);
+  }
+
+  .project-hero {
+    padding: 1rem 0 3.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .project-title {
+    max-width: 940px;
+    margin: 0;
+    font-size: clamp(2.4rem, 6vw, 4.6rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.055em;
+    overflow-wrap: anywhere;
+  }
+
+  .project-title span {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--color-accent);
+  }
+
+  .project-lead {
+    max-width: 760px;
+    margin: 1.5rem 0 0;
+    color: var(--color-text-muted);
+    font-size: clamp(1.05rem, 2vw, 1.2rem);
+    line-height: 1.85;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    margin-top: 1.75rem;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: 44px;
+    padding: 0.7rem 1.05rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-weight: 650;
+    text-decoration: none;
+    transition: border-color 150ms ease, background 150ms ease;
+  }
+
+  .button-primary {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  .button-primary:hover {
+    border-color: var(--color-accent-hover);
+    background: var(--color-accent-hover);
+    color: var(--color-bg);
+  }
+
+  .button-secondary {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .button-secondary:hover {
+    border-color: var(--color-secondary);
+    color: var(--color-text);
+  }
+
+  .metadata {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .metadata > div {
+    display: grid;
+    align-content: start;
+    gap: 0.3rem;
+  }
+
+  .meta-label {
+    color: var(--color-text-subtle);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .section-block {
+    padding-block: clamp(3rem, 7vw, 5rem);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .section-heading .section-intro {
+  color: var(--color-text-muted);
+  line-height: 1.8;
+  }
+
+  .section-heading h2,
+  .closing-section h2 {
+    margin: 0;
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+    line-height: 1.2;
+    letter-spacing: -0.04em;
+  }
+
+  .section-intro {
+    margin: 1rem 0 0;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .prose {
+    color: var(--color-text-muted);
+    line-height: 1.9;
+  }
+
+  .prose p + p {
+    margin-top: 1rem;
+  }
+
+  .comparison-grid,
+  .finding-grid,
+  .engineering-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .comparison-card,
+  .engineering-card,
+  .method-card {
+    min-width: 0;
+    padding: 1.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .comparison-card-featured,
+  .method-card-best {
+    border-color: var(--color-accent);
+  }
+
+  .comparison-number,
+  .engineering-number {
+    color: var(--color-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .comparison-card h3,
+  .engineering-card h3,
+  .finding-grid h3 {
+    margin: 0.65rem 0 0.5rem;
+    font-size: 1.15rem;
+    line-height: 1.4;
+  }
+
+  .comparison-card p,
+  .engineering-card p,
+  .finding-grid p,
+  .method-card p {
+    margin: 0;
+    color: var(--color-text-muted);
+    line-height: 1.75;
+  }
+
+  .comparison-note {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--color-secondary);
+    font-size: 0.85rem;
+    font-weight: 650;
+  }
+
+  .architecture {
+    margin: 2rem 0 0;
+    padding: clamp(1rem, 3vw, 2rem);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .architecture-node {
+    min-width: 0;
+    padding: 1.2rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg);
+    text-align: center;
+  }
+
+  .router-node {
+    max-width: 580px;
+    margin-inline: auto;
+    border-color: var(--color-secondary);
+  }
+
+  .node-role {
+    color: var(--color-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    letter-spacing: 0.04em;
+  }
+
+  .architecture-node h3 {
+    margin: 0.45rem 0;
+    font-size: 1.05rem;
+  }
+
+  .architecture-node p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+
+  .flow-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+    color: var(--color-text-subtle);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  .flow-line {
+    width: min(12%, 70px);
+    height: 1px;
+    flex-shrink: 1;
+    background: var(--color-border);
+  }
+
+  .shard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .shard-node {
+    padding: 1rem 0.7rem;
+  }
+
+  .model-label {
+    min-height: 2.8em;
+    margin-bottom: 0.8rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .node-component {
+    margin-top: 0.55rem;
+    padding: 0.45rem 0.35rem;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    color: var(--color-text);
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
+  }
+
+  .orchestrator-node {
+    max-width: 720px;
+    margin-inline: auto;
+    border-style: dashed;
+  }
+
+  .architecture figcaption {
+    margin-top: 1.5rem;
+    color: var(--color-text-subtle);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .implementation-notes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .implementation-notes h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+  }
+
+  .implementation-notes p {
+    margin: 0;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .method-list {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .method-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .method-heading h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  .method-badge {
+    padding: 0.25rem 0.55rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    color: var(--color-text-subtle);
+    font-size: 0.75rem;
+  }
+
+  .method-card-best .method-badge {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .equation-panel {
+    margin-top: 1.5rem;
+    padding: clamp(1.2rem, 4vw, 2rem);
+    border-left: 3px solid var(--color-secondary);
+    background: var(--color-surface);
+  }
+
+  .equation-label {
+    margin: 0;
+    color: var(--color-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  .equation {
+    margin: 1.2rem 0;
+    font-family: var(--font-mono);
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+  }
+
+  .equation-constraint {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: 0.85em;
+  }
+
+  .equation-panel > p:last-child {
+    margin-bottom: 0;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .results-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .result-highlight {
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-accent);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .result-value {
+    display: block;
+    color: var(--color-accent);
+    font-size: clamp(2.3rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.05em;
+  }
+
+  .result-highlight h3 {
+    margin: 0.8rem 0 0.2rem;
+  }
+
+  .result-highlight p {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+  }
+
+  caption {
+    padding: 1rem;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    text-align: left;
+    font-size: 0.9rem;
+  }
+
+  th,
+  td {
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  thead th {
+    color: var(--color-text-subtle);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  tbody th {
+    font-weight: 600;
+  }
+
+  .best-cell {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .table-note {
+    margin-top: 0.8rem;
+    color: var(--color-text-subtle);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .secondary-evidence {
+    margin-top: 2rem;
+    padding: 1.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+  }
+
+  .secondary-evidence h3 {
+    margin-top: 0;
+  }
+
+  .secondary-evidence p {
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .negative-findings {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: var(--color-surface);
+  }
+
+  .finding-grid {
+    margin-top: 0;
+  }
+
+  .finding-grid h3 {
+    margin-top: 0;
+  }
+
+  .engineering-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .engineering-card {
+    padding: 1.2rem;
+  }
+
+  .stack-panel {
+    margin-top: 1.5rem;
+    padding: 1.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+  }
+
+  .stack-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .stack-tags span {
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+
+  .closing-section {
+    padding-top: 4rem;
+  }
+
+  .closing-section h2 {
+    max-width: 700px;
+  }
+
+  .closing-section > p:not(.eyebrow) {
+    max-width: 680px;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 760px) {
+    .metadata {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .shard-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .model-label {
+      min-height: 0;
+    }
+
+    .implementation-notes,
+    .comparison-grid,
+    .finding-grid,
+    .engineering-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .architecture {
+      padding: 0.8rem;
+    }
+
+    .flow-label {
+      gap: 0.45rem;
+      font-size: 0.72rem;
+    }
+  }
+
+  @media (max-width: 460px) {
+    .results-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-actions .button {
+      width: 100%;
+    }
+
+    th,
+    td {
+      padding: 0.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button {
+      transition: none;
+    }
+  }
+</style>

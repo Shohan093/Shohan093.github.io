@@ -1,0 +1,432 @@
+
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const projects = [
+  {
+    number: "01",
+    title: "Drift Compensated Distributed RAG for Streaming Analytics",
+    category: "Retrieval-Augmented Generation · Distributed Systems",
+    status: "Benchmarked",
+    featured: true,
+    description:
+      "A query-side embedding-drift compensation framework that uses orthogonal Procrustes alignment to recover retrieval quality across embedding-model transitions without re-embedding the entire corpus.",
+    highlights: [
+      {
+        value: "97.6%",
+        label: "of oracle NDCG@10",
+        detail: "Embedding transition 1",
+      },
+      {
+        value: "93.5%",
+        label: "of oracle NDCG@10",
+        detail: "Embedding transition 2",
+      },
+    ],
+    technologies: [
+      "Distributed RAG",
+      "Embedding Alignment",
+      "Orthogonal Procrustes",
+      "Retrieval Evaluation",
+    ],
+    href: "/projects/distributed-rag/",
+    repository: "https://github.com/Shohan093/Distributed-RAG",
+  },
+  {
+    number: "02",
+    title: "VectorFed",
+    category: "Federated Learning · Distributed Systems",
+    status: "In progress",
+    featured: false,
+    description:
+      "An asynchronous federated-learning aggregation algorithm designed to maintain causal consistency independently of physical clock synchronization, using vector clocks to order updates across distributed nodes.",
+    highlights: [],
+    technologies: [
+      "Federated Learning",
+      "Vector Clocks",
+      "PyTorch",
+      "Asynchronous Aggregation",
+    ],
+    // href: "/projects/vectorfed/",
+    repository: "",
+  },
+];
+---
+
+<BaseLayout
+  title="Projects | Data Science"
+  description="Selected research and engineering projects in distributed retrieval, federated learning, and machine learning systems."
+>
+  <main class="container section projects-page">
+    <header class="page-intro reading-width">
+      <p class="eyebrow">SELECTED WORK</p>
+
+      <h1 class="page-title">
+        Research ideas,
+        <span>built and tested.</span>
+      </h1>
+
+      <p class="lead">
+        A selection of research and engineering projects exploring
+        distributed machine learning, retrieval systems, and the
+        algorithms that make them work. Each project emphasizes
+        its motivation, technical approach, and experimental evaluation.
+      </p>
+    </header>
+
+    <section aria-labelledby="projects-heading">
+      <div class="section-heading-group">
+        <p class="eyebrow">PROJECT PORTFOLIO</p>
+        <h2 id="projects-heading">Selected projects</h2>
+        <p class="section-description">
+          Explore the problem, approach, and implementation behind each project.
+        </p>
+      </div>
+
+      <div class="project-list">
+        {projects.map((project) => (
+          <article
+            class:list={[
+              "project-card",
+              { "project-card-featured": project.featured },
+            ]}
+          >
+            <div class="project-topline">
+              <span class="project-number">{project.number}</span>
+              <span class="project-status">{project.status}</span>
+            </div>
+
+            <p class="project-category">{project.category}</p>
+
+            <h3 class="project-title">
+              <a href={project.href}>{project.title}</a>
+            </h3>
+
+            <p class="project-description">{project.description}</p>
+
+            {project.highlights.length > 0 && (
+              <div class="project-highlights">
+                {project.highlights.map((highlight) => (
+                  <div class="highlight">
+                    <span class="highlight-value">{highlight.value}</span>
+                    <span class="highlight-label">{highlight.label}</span>
+                    <span class="highlight-detail">{highlight.detail}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div class="project-technologies">
+              {project.technologies.map((technology) => (
+                <span class="technology-tag">{technology}</span>
+              ))}
+            </div>
+
+            <div class="project-actions">
+              <a class="project-link" href={project.href}>
+                Explore project <span aria-hidden="true">→</span>
+              </a>
+
+              {project.repository && (
+                <a
+                  class="project-link project-link-secondary"
+                  href={project.repository}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span aria-hidden="true">↗</span>
+                  Source code
+                </a>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="closing-section">
+      <p class="eyebrow">COLLABORATION</p>
+      <h2>Interested in the technical details?</h2>
+      <p>
+        I'm interested in connecting with researchers and practitioners
+        working on machine learning, distributed systems, and related areas.
+      </p>
+
+      <a class="button button-primary" href="/contact/">
+        Get in touch <span aria-hidden="true">→</span>
+      </a>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .projects-page {
+    padding-bottom: 5rem;
+  }
+
+  .page-intro {
+    padding-bottom: 3.5rem;
+  }
+
+  .page-title {
+    max-width: 850px;
+    margin: 0;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.055em;
+  }
+
+  .page-title span {
+    display: block;
+    color: var(--color-accent);
+  }
+
+  .lead {
+    max-width: 680px;
+    margin-top: 1.75rem;
+    color: var(--color-text-muted);
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    line-height: 1.85;
+  }
+
+  .section-heading-group {
+    max-width: 760px;
+    margin-bottom: 2rem;
+  }
+
+  .section-heading-group h2,
+  .closing-section h2 {
+    margin: 0.4rem 0 0;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 650;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+  }
+
+  .section-description {
+    margin-top: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.75;
+  }
+
+  .project-list {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    min-width: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: clamp(1.25rem, 4vw, 2.25rem);
+    background: var(--color-surface);
+  }
+
+  .project-card-featured {
+    border-color: var(--color-accent);
+    border-top-width: 3px;
+  }
+
+  .project-topline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .project-number {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .project-status {
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.35rem 0.7rem;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .project-card-featured .project-status {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .project-category {
+    margin-top: 1.5rem;
+    color: var(--color-accent);
+    font-size: 0.78rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    line-height: 1.7;
+    text-transform: uppercase;
+  }
+
+  .project-title {
+    max-width: 850px;
+    margin-top: 0.55rem;
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    font-weight: 650;
+    line-height: 1.3;
+    letter-spacing: -0.035em;
+    overflow-wrap: anywhere;
+  }
+
+  .project-title a {
+    color: var(--color-text);
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+
+  .project-title a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  .project-description {
+    max-width: 760px;
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.85;
+  }
+
+  .project-highlights {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.75rem;
+  }
+
+  .highlight {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  .highlight-value {
+    color: var(--color-accent);
+    font-size: clamp(1.7rem, 4vw, 2.3rem);
+    font-weight: 750;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .highlight-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .highlight-detail {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .project-technologies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
+
+  .technology-tag {
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.45rem 0.65rem;
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  .project-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-accent);
+    font-size: 0.92rem;
+    font-weight: 650;
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+
+  .project-link:hover {
+    text-decoration: underline;
+  }
+
+  .project-link-secondary {
+    color: var(--color-text-muted);
+  }
+
+  .closing-section {
+    margin-top: 3.5rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-surface);
+  }
+
+  .closing-section > p:not(.eyebrow) {
+    max-width: 600px;
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.8;
+  }
+
+  .button {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+    border: 1px solid var(--color-accent);
+    border-radius: 7px;
+    padding: 0.65rem 1rem;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 150ms ease;
+  }
+
+  .button:hover {
+    border-color: var(--color-accent-hover);
+    background: var(--color-accent-hover);
+  }
+
+  @media (max-width: 600px) {
+    .page-intro {
+      padding-bottom: 2.5rem;
+    }
+
+    .project-highlights {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button {
+      transition: none;
+    }
+  }
+</style>

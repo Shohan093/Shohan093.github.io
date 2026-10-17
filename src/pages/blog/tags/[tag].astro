@@ -1,0 +1,114 @@
+
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getReadingTime } from '../../../utils/readingTime';
+import { slugifyTag } from '../../../utils/tags';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+  // Collect each distinct tag and its canonical URL slug.
+  const tags = new Map<string, string>();
+
+  for (const post of posts) {
+    for (const tag of post.data.tags) {
+      const slug = slugifyTag(tag);
+
+      if (slug && !tags.has(slug)) {
+        tags.set(slug, tag);
+      }
+    }
+  }
+
+  return Array.from(tags.entries()).map(([slug, tag]) => {
+    const taggedPosts = posts
+      .filter((post) =>
+        post.data.tags.some(
+          (postTag) => slugifyTag(postTag) === slug,
+        ),
+      )
+      .sort(
+        (a, b) =>
+          b.data.pubDate.getTime() - a.data.pubDate.getTime(),
+      );
+
+    return {
+      params: { tag: slug },
+      props: { tag, posts: taggedPosts },
+    };
+  });
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`Articles tagged ${tag}`}
+  description={`Published articles about ${tag}.`}
+>
+  <main class="mx-auto max-w-3xl px-6 py-16 sm:py-24">
+    <header class="mb-12">
+      <a
+        href="/blog/"
+        class="mb-8 inline-block text-sm text-[var(--accent)] hover:underline"
+      >
+        ← Back to blog
+      </a>
+
+      <p class="mb-3 text-sm text-[var(--text-muted)]">
+        Blog topic
+      </p>
+
+      <h1 class="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
+        {tag}
+      </h1>
+
+      <p class="text-lg leading-8 text-[var(--text-muted)]">
+        {posts.length} {posts.length === 1 ? 'article' : 'articles'} on this topic.
+      </p>
+    </header>
+
+    <div class="space-y-8">
+      {posts.map((post) => (
+        <article class="border-b border-[var(--border)] pb-8">
+          <p class="mb-3 text-sm text-[var(--text-muted)]">
+            <time datetime={post.data.pubDate.toISOString()}>
+              {post.data.pubDate.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </time>
+            <span aria-hidden="true"> · </span>
+            <span>{getReadingTime(post.body)} min read</span>
+          </p>
+
+          <h2 class="mb-3 text-2xl font-semibold tracking-tight">
+            <a
+              href={`/blog/${post.id}/`}
+              class="hover:text-[var(--accent)]"
+            >
+              {post.data.title}
+            </a>
+          </h2>
+
+          <p class="mb-4 leading-7 text-[var(--text-muted)]">
+            {post.data.description}
+          </p>
+
+          <div class="flex flex-wrap gap-2">
+            {post.data.tags.map((postTag) => (
+              <a
+                href={`/blog/tags/${slugifyTag(postTag)}/`}
+                class="rounded border border-[var(--border)] px-2 py-1 text-xs text-[var(--text-muted)] hover:text-[var(--accent)]"
+              >
+                {postTag}
+              </a>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  </main>
+</BaseLayout>

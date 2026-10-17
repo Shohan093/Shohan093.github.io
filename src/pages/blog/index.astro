@@ -1,0 +1,78 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { slugifyTag } from '../../utils/tags';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout
+  title="Blog"
+  description="Notes and articles on mathematics, statistics, and data science."
+>
+  <main class="mx-auto max-w-4xl px-6 py-16 sm:py-24">
+    <header class="mb-12 max-w-2xl">
+      <p class="mb-3 text-sm font-medium uppercase tracking-widest text-[var(--accent)]">
+        Writing &amp; Notes
+      </p>
+
+      <h1 class="mb-5 text-4xl font-bold tracking-tight sm:text-5xl">
+        Blog
+      </h1>
+
+      <p class="text-lg leading-8 text-[var(--text-muted)]">
+        Explorations in mathematics, probability, statistics, and data science.
+        Ideas, derivations, experiments, and practical lessons.
+      </p>
+    </header>
+
+    {posts.length > 0 ? (
+      <div class="divide-y divide-[var(--border)]">
+        {posts.map((post) => (
+          <article class="py-8 first:pt-0">
+            <p class="mb-3 text-sm text-[var(--text-muted)]">
+              <time datetime={post.data.pubDate.toISOString()}>
+                {post.data.pubDate.toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </time>
+            </p>
+
+            <h2 class="mb-3 text-2xl font-semibold">
+              <a
+                href={`/blog/${post.id}/`}
+                class="transition-colors hover:text-[var(--accent)]"
+              >
+                {post.data.title}
+              </a>
+            </h2>
+
+            <p class="mb-4 leading-7 text-[var(--text-muted)]">
+              {post.data.description}
+            </p>
+
+            {post.data.tags.length > 0 && (
+              <ul class="flex flex-wrap gap-2">
+                {post.data.tags.map((tag) => (
+                <a
+                    href={`/blog/tags/${slugifyTag(tag)}/`}
+                    class="rounded border border-[var(--border)] px-2 py-1 text-xs text-[var(--text-muted)] hover:text-[var(--accent)]"
+                    >
+                    {tag}
+                </a>
+                ))}
+              </ul>
+            )}
+          </article>
+        ))}
+      </div>
+    ) : (
+      <p class="text-[var(--text-muted)]">
+        No articles published yet. New writing will appear here soon.
+      </p>
+    )}
+  </main>
+</BaseLayout>
