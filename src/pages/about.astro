@@ -24,6 +24,21 @@ const undergraduateCourses = [
   "Mathematical Programming",
   "Mathematical Modeling for Biology",
 ];
+
+const experiences = [
+  {
+    role: "Data Analyst",
+    organization: "Barikoi Technologies Ltd.",
+    period: "January 2026 – March 2026",
+    location: "Dhaka, Bangladesh",
+  },
+  {
+    role: "Teaching Assistant",
+    organization: "Bangladesh University of Engineering and Technology (BUET)",
+    period: "June 2025 – December 2025",
+    location: "Dhaka, Bangladesh",
+  },
+];
 ---
 
 <BaseLayout
@@ -111,6 +126,30 @@ const undergraduateCourses = [
             </p>
           </div>
         </article>
+      </div>
+    </section>
+
+    <section class="about-section" aria-labelledby="experience-heading">
+      <div class="section-heading-group">
+        <p class="eyebrow">PROFESSIONAL EXPERIENCE</p>
+        <h2 id="experience-heading">Where I've contributed.</h2>
+      </div>
+
+      <div class="education-list">
+        {experiences.map((experience, index) => (
+          <article class="education-item">
+            <div class="education-marker" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </div>
+
+            <div class="education-content">
+              <p class="education-level">{experience.period}</p>
+              <h3>{experience.role}</h3>
+              <p class="institution">{experience.organization}</p>
+              <p class="education-description">{experience.location}</p>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
 

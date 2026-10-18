@@ -1,7 +1,7 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import 'katex/dist/katex.min.css';
+import "katex/dist/katex.min.css";
 import "../styles/global.css";
 
 interface Props {
@@ -34,5 +34,110 @@ const canonicalURL = Astro.url.pathname === "/"
       <slot />
     </main>
     <Footer />
+
+    <button
+      class="back-to-top"
+      id="back-to-top"
+      type="button"
+      aria-label="Back to top"
+      title="Back to top"
+      hidden
+    >
+      <svg
+        aria-hidden="true"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m18 15-6-6-6 6" />
+      </svg>
+    </button>
+
+    <script>
+      const backToTopButton = document.querySelector<HTMLButtonElement>(
+        "#back-to-top",
+      );
+
+      if (backToTopButton) {
+        const updateVisibility = () => {
+          backToTopButton.hidden = window.scrollY < 400;
+        };
+
+        window.addEventListener("scroll", updateVisibility, {
+          passive: true,
+        });
+
+        updateVisibility();
+
+        backToTopButton.addEventListener("click", () => {
+          const prefersReducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)",
+          ).matches;
+
+          window.scrollTo({
+            top: 0,
+            behavior: prefersReducedMotion ? "instant" : "smooth",
+          });
+        });
+      }
+    </script>
+
+    <style>
+      .back-to-top {
+        position: fixed;
+        right: 1.5rem;
+        bottom: 1.5rem;
+        z-index: 100;
+        display: grid;
+        width: 46px;
+        height: 46px;
+        place-items: center;
+        border: 1px solid var(--color-border);
+        border-radius: 50%;
+        background: var(--color-accent);
+        color: var(--color-bg);
+        box-shadow: 0 4px 14px rgb(0 0 0 / 18%);
+        cursor: pointer;
+        transition:
+          background-color 150ms ease,
+          border-color 150ms ease,
+          transform 150ms ease;
+      }
+
+      .back-to-top:hover {
+        border-color: var(--color-accent-hover);
+        background: var(--color-accent-hover);
+        transform: translateY(-2px);
+      }
+
+      .back-to-top:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 4px;
+      }
+
+      .back-to-top[hidden] {
+        display: none;
+      }
+
+      @media (max-width: 640px) {
+        .back-to-top {
+          right: 1rem;
+          bottom: 1rem;
+          width: 44px;
+          height: 44px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .back-to-top {
+          transition: none;
+        }
+      }
+    </style>
   </body>
 </html>

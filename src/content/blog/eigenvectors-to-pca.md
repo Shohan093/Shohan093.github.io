@@ -1,7 +1,7 @@
 ---
 title: "Eigenvectors: From Linear Transformations to Principal Component Analysis"
 description: "A mathematical journey from eigenvectors and covariance matrices to PCA, including the maximum-variance derivation, geometric projections, explained variance, and practical limitations."
-pubDate: 2026-10-18
+pubDate: 2026-10-17
 tags:
   - Linear Algebra
   - Mathematics
