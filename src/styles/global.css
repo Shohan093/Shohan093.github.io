@@ -27,6 +27,25 @@
   --radius-card: 12px;
 }
 
+/* Gruvbox-inspired light palette */
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-bg: #fbf1c7;
+  --color-surface: #f2e5bc;
+  --color-surface-raised: #ebdbb2;
+  --color-border: #d5c4a1;
+
+  --color-text: #3c3836;
+  --color-text-muted: #665c54;
+  --color-text-subtle: #7c6f64;
+
+  --color-accent: #79740e;
+  --color-accent-hover: #af3a03;
+  --color-secondary: #076678;
+}
+
 /* Base styles */
 
 * {
@@ -175,7 +194,7 @@ img {
 
 /* Blog article typography */
 .blog-content {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-size: 1.0625rem;
   line-height: 1.9;
   overflow-wrap: anywhere;
@@ -184,7 +203,7 @@ img {
 .blog-content h2,
 .blog-content h3,
 .blog-content h4 {
-  color: var(--text);
+  color: var(--color-text);
   font-weight: 600;
   line-height: 1.3;
   margin-top: 2.5rem;
@@ -221,26 +240,26 @@ img {
 }
 
 .blog-content a {
-  color: var(--accent);
+  color: var(--color-accent);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .blog-content blockquote {
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--color-accent);
   padding-left: 1rem;
 }
 
 .blog-content pre {
   overflow-x: auto;
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 0.5rem;
   padding: 1rem;
   font-size: 0.875rem;
 }
 
 .blog-content :not(pre) > code {
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: 0.25rem;
   padding: 0.1rem 0.3rem;
   font-size: 0.9em;
@@ -277,13 +296,13 @@ img {
 .button-primary {
   border-color: var(--color-accent);
   background: var(--color-accent);
-  color: #282828;
+  color: var(--color-bg);
 }
 
 .button-primary:hover {
   border-color: var(--color-accent-hover);
   background: var(--color-accent-hover);
-  color: #282828;
+  color: var(--color-bg);
   transform: translateY(-1px);
 }
 

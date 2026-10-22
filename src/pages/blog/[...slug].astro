@@ -6,17 +6,118 @@ import { slugifyTag } from '../../utils/tags';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const posts = await getCollection(
+    'blog',
+    ({ data }) => !data.draft,
+  );
 
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post },
-  }));
+  // Default chronological order: newest first.
+  const chronologicalPosts = [...posts].sort(
+    (a, b) =>
+      b.data.pubDate.valueOf() - a.data.pubDate.valueOf() ||
+      a.id.localeCompare(b.id),
+  );
+
+  // Group series installments.
+  const seriesGroups = new Map<string, typeof posts>();
+
+  for (const post of posts) {
+    if (!post.data.series) continue;
+
+    const group = seriesGroups.get(post.data.series) ?? [];
+    group.push(post);
+    seriesGroups.set(post.data.series, group);
+  }
+
+  // Validate and order each series.
+  for (const [seriesName, installments] of seriesGroups) {
+    const seenOrders = new Set<number>();
+
+    for (const installment of installments) {
+      const order = installment.data.seriesOrder!;
+
+      if (seenOrders.has(order)) {
+        throw new Error(
+          `Duplicate seriesOrder ${order} in series "${seriesName}".`,
+        );
+      }
+
+      seenOrders.add(order);
+    }
+
+    installments.sort(
+      (a, b) =>
+        a.data.seriesOrder! - b.data.seriesOrder!,
+    );
+  }
+
+  return posts.map((post) => {
+    const chronologicalIndex = chronologicalPosts.findIndex(
+      (item) => item.id === post.id,
+    );
+
+    let previousPost;
+    let nextPost;
+
+    if (post.data.series) {
+      const installments = seriesGroups.get(post.data.series)!;
+      const seriesIndex = installments.findIndex(
+        (item) => item.id === post.id,
+      );
+
+      // Within a series, follow installment order.
+      previousPost =
+        seriesIndex > 0
+          ? installments[seriesIndex - 1]
+          : undefined;
+
+      nextPost =
+        seriesIndex < installments.length - 1
+          ? installments[seriesIndex + 1]
+          : undefined;
+
+      // At a series boundary, fall back to chronology.
+      // Skip other installments of the same series.
+      if (!previousPost) {
+        previousPost = chronologicalPosts
+          .slice(chronologicalIndex + 1)
+          .find(
+            (item) => item.data.series !== post.data.series,
+          );
+      }
+
+      if (!nextPost) {
+        nextPost = chronologicalPosts
+          .slice(0, chronologicalIndex)
+          .reverse()
+          .find(
+            (item) => item.data.series !== post.data.series,
+          );
+      }
+    } else {
+      // Standalone posts use chronological navigation.
+      previousPost = chronologicalPosts[chronologicalIndex + 1];
+      nextPost = chronologicalPosts[chronologicalIndex - 1];
+    }
+
+    return {
+      params: { slug: post.id },
+      props: {
+        post,
+        previousPost: previousPost
+          ? { id: previousPost.id, title: previousPost.data.title }
+          : null,
+        nextPost: nextPost
+          ? { id: nextPost.id, title: nextPost.data.title }
+          : null,
+      },
+    };
+  });
 }
 
-const { post } = Astro.props;
+const { post, previousPost, nextPost } = Astro.props;
 const readingTime = getReadingTime(post.body);
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 
 const formattedDate = post.data.pubDate.toLocaleDateString('en-GB', {
   day: 'numeric',
@@ -29,61 +130,230 @@ const formattedDate = post.data.pubDate.toLocaleDateString('en-GB', {
   title={post.data.title}
   description={post.data.description}
 >
-  <main class="mx-auto max-w-3xl px-6 py-16 sm:py-24">
-    <article>
-      <header class="mb-12">
-        <a
-          href="/blog/"
-          class="mb-8 inline-block text-sm text-[var(--accent)] hover:underline"
-        >
-          ← Back to blog
-        </a>
+  <main class="article-layout mx-auto px-6 py-12 sm:py-20">
+    <div class="article-grid">
+      <article>
+        <header class="mb-12">
+          <a
+            href="/blog/"
+            class="mb-8 inline-block text-sm text-[var(--accent)] hover:underline"
+          >
+            ← Back to blog
+          </a>
 
-        <p class="mb-4 text-sm text-[var(--text-muted)]">
-          <time datetime={post.data.pubDate.toISOString()}>
-            {formattedDate}
-          </time>
-          <span aria-hidden="true"> · </span>
-          <span>{readingTime} min read</span>
-          {post.data.updatedDate && (
-            <span>
-              {' '}· Updated{' '}
-              {post.data.updatedDate.toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </span>
-          )}
-        </p>
+          <p class="mb-4 text-sm text-[var(--text-muted)]">
+            <time datetime={post.data.pubDate.toISOString()}>
+              {formattedDate}
+            </time>
+            <span aria-hidden="true"> · </span>
+            <span>{readingTime} min read</span>
+            {post.data.updatedDate && (
+              <span>
+                {' '}· Updated{' '}
+                {post.data.updatedDate.toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </span>
+            )}
+          </p>
 
-        <h1 class="mb-5 text-4xl font-bold tracking-tight sm:text-5xl">
-          {post.data.title}
-        </h1>
+          <h1 class="mb-5 text-4xl font-bold tracking-tight sm:text-5xl">
+            {post.data.title}
+          </h1>
+          
+          <p class="mb-4 flex items-center gap-2 text-sm text-[var(--text-muted)]">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="8" r="4" />
+              <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+            </svg>
+            <span>Md Anisujjaman</span>
+          </p>
 
-        <p class="text-lg leading-8 text-[var(--text-muted)]">
-          {post.data.description}
-        </p>
+          <p class="text-lg leading-8 text-[var(--text-muted)]">
+            {post.data.description}
+          </p>
 
-        {post.data.tags.length > 0 && (
-          <ul class="mt-6 flex flex-wrap gap-2">
-            {post.data.tags.map((tag) => (
-              <li class="rounded border border-[var(--border)] px-2 py-1 text-xs text-[var(--text-muted)]">
-                <a
+          {post.data.tags.length > 0 && (
+            <ul class="mt-6 flex flex-wrap gap-2">
+              {post.data.tags.map((tag) => (
+                <li class="rounded border border-[var(--border)] px-2 py-1 text-xs text-[var(--text-muted)]">
+                  <a
                     href={`/blog/tags/${slugifyTag(tag)}/`}
                     class="hover:text-[var(--accent)]"
-                >
+                  >
                     {tag}
-                </a>
-            </li>
-            ))}
-          </ul>
-        )}
-      </header>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </header>
 
-      <div class="blog-content">
-        <Content />
-      </div>
-    </article>
+        <div class="blog-content">
+          <Content />
+        </div>
+        
+        <!-- Blog Post Navigation -->
+        {(previousPost || nextPost) && (
+          <nav
+            class="mt-16 border-t border-[var(--border)] pt-8"
+            aria-label="Article navigation"
+          >
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {previousPost ? (
+                <a
+                  href={`/blog/${previousPost.id}/`}
+                  aria-label={`Previous article: ${previousPost.title}`}
+                  class="group rounded-lg border border-[var(--border)] p-4 transition-colors hover:border-[var(--accent)]"
+                >
+                  <span class="mb-2 block text-sm text-[var(--text-muted)]">
+                    ← Previous
+                  </span>
+                  <span class="font-medium transition-colors group-hover:text-[var(--accent)]">
+                    {previousPost.title}
+                  </span>
+                </a>
+              ) : (
+                <div />
+              )}
+
+              {nextPost ? (
+                <a
+                  href={`/blog/${nextPost.id}/`}
+                  aria-label={`Next article: ${nextPost.title}`}
+                  class="group rounded-lg border border-[var(--border)] p-4 text-left transition-colors hover:border-[var(--accent)] sm:text-right"
+                >
+                  <span class="mb-2 block text-sm text-[var(--text-muted)]">
+                    Next →
+                  </span>
+                  <span class="font-medium transition-colors group-hover:text-[var(--accent)]">
+                    {nextPost.title}
+                  </span>
+                </a>
+              ) : (
+                <div />
+              )}
+            </div>
+          </nav>
+        )}
+      </article>
+
+      {headings.filter((heading) => heading.depth >= 2 && heading.depth <= 3).length >= 3 && (
+        <aside class="article-toc" aria-label="Table of contents">
+          <details open>
+            <summary>On this page</summary>
+            <nav aria-label="Article sections">
+              <ul>
+                {headings
+                  .filter((heading) => heading.depth >= 2 && heading.depth <= 3)
+                  .map((heading) => (
+                    <li class:list={[`toc-level-${heading.depth}`]}>
+                      <a href={`#${heading.slug}`}>{heading.text}</a>
+                    </li>
+                  ))}
+              </ul>
+            </nav>
+          </details>
+        </aside>
+      )}
+    </div>
   </main>
 </BaseLayout>
+
+<style>
+  .article-layout {
+    width: min(100%, 1440px);
+  }
+
+  .article-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .article-grid article {
+    min-width: 0;
+    max-width: 48rem;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .article-toc {
+    position: sticky;
+    top: 6rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+    border-left: 1px solid var(--color-border);
+    padding-left: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .article-toc summary {
+    color: var(--color-text);
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 0.75rem;
+  }
+
+  .article-toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .article-toc li {
+    margin-block: 0.5rem;
+  }
+
+  .article-toc .toc-level-3 {
+    padding-left: 0.875rem;
+  }
+
+  .article-toc a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .article-toc a:hover,
+  .article-toc a:focus-visible {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 900px) {
+    .article-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+    }
+
+    .article-toc {
+      position: static;
+      grid-row: 1;
+      max-height: none;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 0.875rem 1rem;
+    }
+
+    .article-toc summary {
+      margin-bottom: 0;
+    }
+
+    .article-toc details[open] summary {
+      margin-bottom: 0.75rem;
+    }
+  }
+</style>
